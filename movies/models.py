@@ -9,11 +9,10 @@ class MovieList(models.Model):
     play_time      = models.CharField(max_length=255)
     director       = models.CharField(max_length=255)
     poster         = models.CharField(max_length=255)
-    casts          = models.TextField()
+    cast_list      = models.TextField()
     synopsis       = models.TextField()
     avg_rating     = models.FloatField(default=0)
     number_rating  = models.IntegerField(default=0)
-    cast_list      = models.TextField()
 
     class Meta:
         db_table = 'movie_lists'
