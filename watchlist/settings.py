@@ -1,5 +1,7 @@
 import pymysql
 
+from datetime import timedelta
+
 from pathlib import Path
 
 from my_settings import DATABASES, SECRET_KEY
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'users',
     'movies'
 ]
@@ -144,3 +147,15 @@ CORS_ALLOW_HEADERS = (
 )
 
 APPEND_SLASH = False
+
+## Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS' : True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+} 
