@@ -1,19 +1,22 @@
 from django.forms import ValidationError
 
-from rest_framework import generics
+from rest_framework             import generics
+from rest_framework.permissions import IsAuthenticated
 
 from movies.models      import MovieList, Rating
 from movies.serializers import MovieListSerializer, RatingSerializer
 
 
-class MoviewListView(generics.ListCreateAPIView):
-    serializer_class = MovieListSerializer
-    queryset         = MovieList.objects.all()
+class MovieListView(generics.ListCreateAPIView):
+    serializer_class   = MovieListSerializer
+    queryset           = MovieList.objects.all()
+    permission_classes = [IsAuthenticated]
 
 
-class RatingView(generics.ListCreateAPIView):
-    serializer_class = RatingSerializer
-    queryset = Rating.objects.all()
+class RatingView(generics.CreateAPIView):
+    serializer_class   = RatingSerializer
+    queryset           = Rating.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         try:
@@ -36,3 +39,9 @@ class RatingView(generics.ListCreateAPIView):
         movie_list.save()
 
         serializer.save(user=user, movie_list=movie_list)
+
+
+class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class   = MovieListSerializer
+    queryset           = MovieList.objects.all()
+    permission_classes = [IsAuthenticated]
