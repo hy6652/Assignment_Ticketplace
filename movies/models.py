@@ -8,7 +8,7 @@ class MovieList(models.Model):
     genre          = models.CharField(max_length=255)
     play_time      = models.CharField(max_length=255)
     director       = models.CharField(max_length=255)
-    poster         = models.CharField(max_length=255)
+    poster         = models.FileField(max_length=300, upload_to='poster/')
     cast_list      = models.TextField()
     synopsis       = models.TextField()
     avg_rating     = models.FloatField(default=0)
