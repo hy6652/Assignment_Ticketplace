@@ -10,7 +10,7 @@ s3 = boto3.client(
 
 class FileUploader:
     def __init__(self, client, bucket_name):
-        self.client = client
+        self.client      = client
         self.bucket_name = bucket_name
     
     def upload(self, file, folder):
@@ -24,5 +24,4 @@ class FileUploader:
             }
         )
 
-        # DB에 저장되는 값
         return f'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/{folder}{file_id}'

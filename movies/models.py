@@ -23,11 +23,11 @@ class Rating(models.Model):
     point_rating = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'raitings'
+        db_table = 'ratings'
 
-# class Video(models.Model):
-#     movie_list = models.ForeignKey(MovieList, on_delete=models.CASCADE)
-#     file       = models.FileField()
+class Video(models.Model):
+    movie_list = models.ForeignKey(MovieList, on_delete=models.CASCADE, related_name='video')
+    file       = models.FileField(max_length=300, upload_to='video/')
 
-#     class Meta:
-#         db_table = 'videos'
+    class Meta:
+        db_table = 'videos'
