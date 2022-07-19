@@ -1,13 +1,13 @@
-from django.forms import ValidationError
 from django.conf  import settings
 
 from rest_framework             import generics
 from rest_framework             import status
 from rest_framework.response    import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions  import ValidationError
 
-from movies.models      import MovieList, Rating
-from movies.serializers import MovieListSerializer, RatingSerializer
+from movies.models      import MovieList, Rating, Video
+from movies.serializers import MovieListSerializer, RatingSerializer, VideoSerializer
 from cores.storages     import FileUploader, s3
 
 
@@ -20,13 +20,13 @@ class MovieListView(generics.ListCreateAPIView):
         poster = request.FILES.get('poster', None)
 
         if not poster:
-            return Response({'you should upload one poster'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'you should upload a poster'}, status=status.HTTP_400_BAD_REQUEST)
         
         file_type = poster.content_type.split('/')[0]
         if file_type != 'image':
-            return Response({'file type is not an image'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'this file is not an image'}, status=status.HTTP_400_BAD_REQUEST)
 
-        poster_image = FileUploader(s3, settings.AWS_STORAGE_BUCKET_NAME).upload(poster, 'ticketplace/')
+        poster_image = FileUploader(s3, settings.AWS_STORAGE_BUCKET_NAME).upload(poster, 'poster/')
         
         serializer = MovieListSerializer(data=request.data)
         if serializer.is_valid():
@@ -67,3 +67,25 @@ class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class   = MovieListSerializer
     queryset           = MovieList.objects.all()
     permission_classes = [IsAuthenticated]
+
+
+class VideoListView(generics.ListCreateAPIView):
+    serializer_class = VideoSerializer
+    queryset         = Video.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        pk         = self.kwargs.get('pk')
+        movie_list = MovieList.objects.get(pk=pk)
+      
+        video = self.request.FILES.get('file')
+
+        if not video:
+            raise ValidationError('you should add at least one video')
+        
+        file_type = video.content_type.split('/')[0]
+        if file_type != 'video':
+            raise ValidationError('this file is not a video')
+        file = FileUploader(s3, settings.AWS_STORAGE_BUCKET_NAME).upload(video, 'video/')
+        
+        serializer.save(file=file, movie_list=movie_list)
