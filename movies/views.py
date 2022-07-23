@@ -14,7 +14,7 @@ from cores.storages     import FileUploader, s3
 class MovieListView(generics.ListCreateAPIView):
     serializer_class   = MovieListSerializer
     queryset           = MovieList.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         poster = request.FILES.get('poster', None)
@@ -86,14 +86,15 @@ class VideoListView(generics.CreateAPIView):
         if len(videos) > 4:
             raise ValidationError('you can add up to 4 videos')
         
+        result = []
         for video in videos:
             file_type = video.content_type.split('/')[0]
             if file_type != 'video':
                 raise ValidationError('this file is not a video')
             file = FileUploader(s3, settings.AWS_STORAGE_BUCKET_NAME).upload(video, 'video/')
-
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
+            
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
             serializer.save(movie_list=movie_list, file=file)
-            return Response(serializer.data, status=status.HTTP_201_CREATED) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            result.append(serializer.data)
+        return Response(result, status=status.HTTP_201_CREATED)
